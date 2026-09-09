@@ -11,4 +11,4 @@ fi
 
 "$SPARK_SUBMIT" \
   --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  "$PROJECT_DIR/src/kafka_word_count.py"
+  "$PROJECT_DIR/src/sensor_stream.py"
