@@ -2,70 +2,45 @@
 
 A real-time Apache Kafka and Apache Spark Structured Streaming project.
 
-The project provides:
+The repository is intentionally source-only. One setup command downloads isolated project runtimes, keeping existing Kafka, Spark, Java, ZooKeeper, and Python installations untouched.
 
-- a Kafka word-count stream for `test-topic`
-- a JSON sensor stream for `sensor-data`
-- a Python Kafka producer
-- a project-local Python environment, isolated from system Python packages
+## Versions
 
-## Current versions
+- Java 21, downloaded locally from Eclipse Temurin
+- Apache Kafka 4.3.1, downloaded locally in KRaft mode
+- PySpark 4.2.0, installed in `.venv`
+- kafka-python 3.0.11, installed in `.venv`
 
-- Python 3.10+
-- PySpark 4.2.0
-- kafka-python 3.0.11
-- Java 17 or 21
-- Kafka broker: configure separately; it is not a Python package
+Kafka 4.3 uses KRaft and does not require ZooKeeper.
 
-## Install Python requirements
+## First-time setup
 
 From the repository root:
 
 ```bash
+./scripts/setup_local_runtime.sh
 ./scripts/install_python_dependencies.sh
-```
-
-This creates `.venv` inside the repository and runs the equivalent of:
-
-```bash
-.venv/bin/python -m pip install -r requirements.txt
-```
-
-No Python packages are installed globally.
-
-## Kafka broker setup
-
-For your existing Kafka installation:
-
-```bash
-export KAFKA_HOME=/home/venkatesh/kafka
-export KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-$KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties
-```
-
-In a separate terminal:
-
-```bash
-export KAFKA_HOME=/home/venkatesh/kafka
-$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
-```
-
-Create project topics:
-
-```bash
-export KAFKA_HOME=/home/venkatesh/kafka
+./scripts/start_local_kafka.sh
 ./scripts/create_topics.sh
+```
+
+The setup creates these ignored directories:
+
+```text
+.runtime/jdk/      Local Java 21 runtime
+.runtime/kafka/    Local Kafka 4.3.1 runtime
+.venv/             Local Python, PySpark, and Kafka client packages
 ```
 
 ## Run word count
 
-In one terminal:
+Terminal 1:
 
 ```bash
 ./scripts/run_word_count.sh
 ```
 
-In another terminal:
+Terminal 2:
 
 ```bash
 .venv/bin/python src/producer.py --message "spark kafka streaming works"
@@ -73,16 +48,22 @@ In another terminal:
 
 ## Run sensor streaming
 
-In one terminal:
+Terminal 1:
 
 ```bash
 ./scripts/run_sensor_stream.sh
 ```
 
-In another terminal:
+Terminal 2:
 
 ```bash
 .venv/bin/python src/producer.py --topic sensor-data --sensor
 ```
 
-The current Spark 4.2 connector uses Scala 2.13, which is why the scripts use `spark-sql-kafka-0-10_2.13:4.2.0`.
+## Stop Kafka
+
+```bash
+pkill -f kafka.Kafka
+```
+
+The runtimes are downloaded from official Apache Kafka and Eclipse Temurin endpoints; no Kafka, Spark, or Java binaries are committed to GitHub.
